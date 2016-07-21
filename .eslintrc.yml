@@ -25,3 +25,4 @@ rules:
   new-cap: off
   quotes: [warn, single]
   react/prop-types: warn
+  react/prefer-stateless-function: off
