@@ -1,63 +1,45 @@
 import React from 'react'
-import { Range, Set } from 'immutable'
+import { Range } from 'immutable'
 import ImmutablePropTypes from 'react-immutable-proptypes'
 import { connect } from 'react-redux'
 import { SIZE, GRID_SIZE, COLORS, SELECTED_COLORS } from './constants'
 import { Point } from './types'
-import { click, pop } from './actions'
-import { groupStars } from './common'
+import { click } from './actions'
+
+const styles = {
+  width: GRID_SIZE,
+  height: GRID_SIZE,
+  position: 'absolute',
+  left: 0,
+  top: 0,
+  border: '1px solid #424242',
+}
 
 const getProps = state => state.toObject()
 
-@connect(getProps, { click, pop })
+@connect(getProps, { click })
 export default class Board extends React.Component {
   static propTypes = {
-    selectedPoint: Point.propTypes,
+    selectedGroup: ImmutablePropTypes.setOf(Point.propTypes.isRequired).isRequired,
     stars: ImmutablePropTypes.mapOf(React.PropTypes.string),
     click: React.PropTypes.func.isRequired,
-    pop: React.PropTypes.func.isRequired,
-  }
-
-  clickPoint = (point, hasSelected) => () => {
-    if (hasSelected) {
-      this.props.pop()
-    } else {
-      this.props.click(point)
-    }
   }
 
   render() {
-    const { selectedPoint, stars } = this.props
+    const { selectedGroup, stars } = this.props
     // console.log(String(stars))
-    const groups = groupStars(stars)
-    let group = Set()
-    if (selectedPoint) {
-      group = groups.find(g => g.has(selectedPoint))
-    }
     return (
-      <div className="board">
-        <div className="grids">
-          {Range(0, SIZE * SIZE).map(index =>
-            <div
-              key={index}
-              className="grid"
-              style={{
-                transform: `translate(${GRID_SIZE * (index % SIZE)}px,
-                  ${GRID_SIZE * (SIZE - 1 - (Math.floor(index / SIZE)))}px)`,
-                width: GRID_SIZE,
-                height: GRID_SIZE,
-              }}
-            />
-          )}
-        </div>
+      <div style={{ position: 'absolute', left: GRID_SIZE, top: GRID_SIZE }}>
+        <Grids />
+        <Coordinates />
         <div className="stars">
           {stars.map((color, point) =>
             <Star
               key={point}
               point={point}
               color={color}
-              selected={group.has(point)}
-              onClick={this.clickPoint(point, group.has(point))}
+              selected={selectedGroup.has(point)}
+              onClick={() => this.props.click(point)}
             />
           ).toArray()}
         </div>
@@ -66,6 +48,72 @@ export default class Board extends React.Component {
   }
 }
 
+const Coordinates = () => (
+  <div>
+    <div
+      style={{
+        position: 'absolute',
+        left: 0,
+        top: SIZE * GRID_SIZE,
+        display: 'flex',
+      }}
+    >
+      {Range(0, SIZE).map(x =>
+        <p
+          key={x}
+          style={{
+            width: GRID_SIZE,
+            lineHeight: `${GRID_SIZE}px`,
+            margin: 0,
+            textAlign: 'center',
+          }}
+        >
+          {x}
+        </p>
+      ).toArray()}
+    </div>
+    <div
+      style={{
+        position: 'absolute',
+        right: 0,
+        top: 0,
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      {Range(0, SIZE).map(y =>
+        <p
+          key={y}
+          style={{
+            width: GRID_SIZE,
+            lineHeight: `${GRID_SIZE}px`,
+            margin: 0,
+            textAlign: 'center',
+          }}
+        >
+          {SIZE - 1 - y}
+        </p>
+      )}
+    </div>
+  </div>
+)
+
+const Grids = () => (
+  <div className="grids">
+    {Range(0, SIZE * SIZE).map(index =>
+      <div
+        key={index}
+        className="grid"
+        style={{
+          transform: `translate(${GRID_SIZE * (index % SIZE)}px,
+                  ${GRID_SIZE * (SIZE - 1 - (Math.floor(index / SIZE)))}px)`,
+          ...styles,
+        }}
+      />
+    )}
+  </div>
+)
+
 const Star = ({ point, color, onClick, selected }) => (
   <div
     className="star"
@@ -73,8 +121,7 @@ const Star = ({ point, color, onClick, selected }) => (
     style={{
       transform: `translate(${GRID_SIZE * point.x}px, ${GRID_SIZE * (SIZE - 1 - point.y)}px)`,
       background: (selected ? SELECTED_COLORS : COLORS)[color],
-      width: GRID_SIZE,
-      height: GRID_SIZE,
+      ...styles,
     }}
   />
 )

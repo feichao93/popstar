@@ -1,13 +1,27 @@
+import { Set } from 'immutable'
+import { groupAllStars, spawnStars } from './common'
+
 export const SELECT = 'SELECT'
-
 export const POP = 'POP'
+export const RESTART = 'RESTART'
 
-// 选中某个位置的星星
-export const select = point => ({ type: SELECT, point })
+export const restart = () => dispatch => {
+  const stars = spawnStars()
+  dispatch({ type: RESTART, stars })
+}
 
-// 消除选中的星星
-export const pop = () => ({ type: POP })
-
+// 点击某个位置的星星
 export const click = point => (dispatch, getState) => {
-  dispatch({ type: SELECT, point })
+  const { stars, selectedGroup } = getState().toObject()
+  if (selectedGroup.has(point)) {
+    dispatch({ type: POP })
+  } else {
+    const groups = groupAllStars(stars)
+    const group = groups.find(g => g.has(point))
+    if (group.size === 1) { // 只有一个星星的group是非法的
+      dispatch({ type: SELECT, group: Set() })
+    } else {
+      dispatch({ type: SELECT, group })
+    }
+  }
 }
