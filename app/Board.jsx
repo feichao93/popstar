@@ -27,9 +27,17 @@ export default class Board extends React.Component {
 
   render() {
     const { selectedGroup, stars } = this.props
-    // console.log(String(stars))
     return (
-      <div style={{ position: 'absolute', left: GRID_SIZE, top: GRID_SIZE }}>
+      <div
+        style={{
+          position: 'absolute',
+          left: GRID_SIZE,
+          top: GRID_SIZE,
+          WebkitUserSelect: 'none',
+          userSelect: 'none',
+          cursor: 'default',
+        }}
+      >
         <Grids />
         <Coordinates />
         <div className="stars">

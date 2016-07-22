@@ -38,6 +38,7 @@ module.exports = {
   ],
 
   devServer: {
+    port: 12345,
     contentBase: "build",
     colors: true,
     historyApiFallback: true,

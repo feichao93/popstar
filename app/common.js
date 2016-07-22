@@ -14,7 +14,7 @@ export function getScore(n) {
 export function arrangeStars(stars) {
   const downMap = {} // downMap[x]用来记录一列中y坐标对应的星星应当掉落的距离
   Range(0, SIZE).forEach(x => {
-    // downMap[x]数组中的元素数量总是比y大1
+    // 注意: downMap[x]数组中的元素数量总是比y大1
     downMap[x] = [0]
     Range(0, SIZE).forEach(y => {
       const point = Point({ x, y })
@@ -22,25 +22,21 @@ export function arrangeStars(stars) {
       downMap[x].push(downMap[x][y] + (stars.has(point) ? 0 : 1))
     })
   })
-  // todo 还要处理向左并拢的操作
+
   // left数组用来记录每一列应该向左平移的距离
   const left = [0]
   Range(0, SIZE).forEach(x => {
-    // left数组中的元素数量总是比x大1
+    // 注意: left数组中的元素数量总是比x大1
     if (stars.some((color, point) => point.x === x)) { // 至少有一个点在该列上
       left.push(left[x])
     } else {
       left.push(left[x] + 1)
     }
   })
+
   return stars.mapKeys(point => {
     const { x, y } = point
-    // if (downMap[x][y] > 0) {
-    // console.log(String(point), '-->', String(update('y', y => y - downMap[x][y])))
-    // return point.set('y', y - downMap[x][y])
     return Point({ x: x - left[x], y: y - downMap[x][y] })
-    // }
-    // return point
   })
 }
 
@@ -67,51 +63,53 @@ const around = point => Set([
   point.update('y', y => y - 1),
 ])
 
+export function findGroup(stars, points, anchor) {
+  const color = stars.get(anchor)
+  let result = Set()
+  let newAdd = Set([anchor])
+  let next
+  while (true) { // eslint-disable-line no-constant-condition
+    next = newAdd.flatMap(around)
+      .filter(p => ( // eslint-disable-line no-loop-func
+        points.has(p)
+        && stars.get(p) === color
+        && !result.has(p))
+        && !newAdd.has(p)
+      )
+
+    result = result.union(newAdd)
+    newAdd = next
+    if (next.size === 0) {
+      break
+    }
+  }
+  return result
+}
+
 /** 对stars进行分组 */
 export function groupAllStars(stars) {
   const groups = Set().asMutable()
   let pointsToTraverse = stars.keySeq().toSet()
-  // let j = 0
   while (pointsToTraverse.size > 0) {
     const anchor = pointsToTraverse.first()
-    // console.group('anchor:', String(anchor))
-    const color = stars.get(anchor)
-    let points = Set()
-    let newAdd = Set([anchor])
-    // console.log('newAdd:', String(newAdd))
-    let next
-    // let i = 0
-    // while (i < SIZE) {
-    while (true) { // eslint-disable-line no-constant-condition
-      // console.log('dirty-next:', String(newAdd.flatMap(around)))
-      next = newAdd.flatMap(around)
-        .filter(point => ( // eslint-disable-line no-loop-func
-          pointsToTraverse.has(point)
-          && stars.get(point) === color
-          && !points.has(point))
-          && !newAdd.has(point)
-        )
-      // console.log('next:', String(next))
-
-      points = points.union(newAdd)
-      // console.log('---', String(points))
-      newAdd = next
-      if (next.size === 0) {
-        break
-      }
-    }
-    groups.add(points)
-    pointsToTraverse = pointsToTraverse.subtract(points)
-    // console.log('points:', String(points))
-    // console.log(pointsToTraverse.size)
-    // console.groupEnd()
+    const group = findGroup(stars, pointsToTraverse, anchor)
+    groups.add(group)
+    pointsToTraverse = pointsToTraverse.subtract(group)
   }
   return groups.asImmutable()
 }
 
 export function isGameover(stars) {
-  const groups = groupAllStars(stars)
-  return groups.size === stars.size // todo 可以进行优化
+  let pointsToTraverse = stars.keySeq().toSet()
+  while (pointsToTraverse.size > 0) {
+    const anchor = pointsToTraverse.first()
+    const group = findGroup(stars, pointsToTraverse, anchor)
+    if (group.size > 1) {
+      return false
+    }
+    pointsToTraverse = pointsToTraverse.subtract(group)
+  }
+  return true
 }
 
 /** 根据state得到snapshot */

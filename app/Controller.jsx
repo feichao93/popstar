@@ -38,7 +38,7 @@ export default class Controller extends React.Component {
         <input type="text" readOnly="readOnly" value={score} />
         <br />
         {gameover ? (
-          <p>游戏结束 {score - bonus} + {bonus}</p>
+          <p style={{ color: 'red' }}>游戏结束 {score - bonus} + {bonus}</p>
         ) : null}
         <br />
         <div>

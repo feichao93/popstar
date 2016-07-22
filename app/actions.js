@@ -1,5 +1,5 @@
 import { Set } from 'immutable'
-import { groupAllStars, spawnStars } from './common'
+import { spawnStars, findGroup } from './common'
 
 export const SELECT = 'SELECT'
 export const POP = 'POP'
@@ -16,8 +16,7 @@ export const click = point => (dispatch, getState) => {
   if (selectedGroup.has(point)) {
     dispatch({ type: POP })
   } else {
-    const groups = groupAllStars(stars)
-    const group = groups.find(g => g.has(point))
+    const group = findGroup(stars, stars.keySeq().toSet(), point)
     if (group.size === 1) { // 只有一个星星的group是非法的
       dispatch({ type: SELECT, group: Set() })
     } else {
