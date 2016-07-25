@@ -5,9 +5,10 @@ export const SELECT = 'SELECT'
 export const POP = 'POP'
 export const RESTART = 'RESTART'
 
-export const restart = () => dispatch => {
-  const stars = spawnStars()
-  dispatch({ type: RESTART, stars })
+export const restart = startCondition => dispatch => {
+  const stars = (startCondition && startCondition.stars) || spawnStars()
+  const score = (startCondition && startCondition.score) || 0
+  dispatch({ type: RESTART, stars, score })
 }
 
 // 点击某个位置的星星

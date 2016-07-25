@@ -26,7 +26,7 @@ export default function reducer(state = intitalState, action) {
       }
     })
   } else if (action.type === RESTART) {
-    return state.set('score', 0)
+    return state.set('score', action.score)
       .set('stars', action.stars)
       .set('selectedGroup', Set())
       .set('gameover', false)

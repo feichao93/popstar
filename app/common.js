@@ -1,4 +1,4 @@
-import { Range, Map, Set } from 'immutable'
+import { Range, Map, Set, fromJS } from 'immutable'
 import { SIZE, COLORS } from './constants'
 import { Point } from './types'
 
@@ -112,16 +112,46 @@ export function isGameover(stars) {
   return true
 }
 
-/** 根据state得到snapshot */
-export function asSnapshot(score, stars) {
-  const jsonStars = Range(0, SIZE).reverse().map(y =>
-    Range(0, SIZE).map(x => stars.get(Point({ x, y }), 'O')).join(''))
-    .toArray()
-  return { score, stars: jsonStars }
-}
-
 export function asSnapshotString(score, stars) {
   return `{\n  "score": ${score},\n  "stars": [\n${Range(0, SIZE).reverse()
     .map(y => `    "${Range(0, SIZE).map(x => stars.get(Point({ x, y }), 'O')).join('')}"`)
     .join(',\n')}\n  ]\n}`
+}
+
+function hasValidStarsAttr(object) {
+  return typeof object.stars === 'object'
+    && object.stars.length === SIZE
+    && object.stars.every(string =>
+      typeof string === 'string'
+      && string.length === SIZE
+      && string.match(/^[GBPRYO]+$/)
+    )
+}
+
+export function parserJson(jsonString) {
+  let object
+  try {
+    object = JSON.parse(jsonString)
+  } catch (e) {
+    return '请输入合法的json'
+  }
+  if (!(typeof object.score === 'number' && object.score >= 0)) {
+    return '请输入合法的score字段'
+  }
+  if (!hasValidStarsAttr(object)) {
+    return '请输入合法的stars字段'
+  }
+  return {
+    score: object.score,
+    stars: Map().withMutations(m => {
+      fromJS(object.stars).forEach((string, rowIndex) => {
+        for (let x = 0; x < string.length; x++) {
+          const char = string[x]
+          if (COLORS[char]) {
+            m.set(Point({ x, y: SIZE - 1 - rowIndex }), char)
+          }
+        }
+      })
+    }),
+  }
 }
