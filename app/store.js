@@ -4,7 +4,7 @@ import reducer from './reducer'
 
 let enhancer = compose(
   applyMiddleware(thunkMiddleware),
-  window.devToolsExtension && window.devToolsExtension())
+  window.devToolsExtension ? window.devToolsExtension() : f => f)
 if (process.env.NODE_ENV === 'production') {
   enhancer = applyMiddleware(thunkMiddleware)
 }

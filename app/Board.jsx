@@ -5,6 +5,7 @@ import { connect } from 'react-redux'
 import { SIZE, GRID_SIZE, COLORS, SELECTED_COLORS } from './constants'
 import { Point } from './types'
 import { click } from './actions'
+import getGameState from './getGameState'
 
 const styles = {
   width: GRID_SIZE,
@@ -15,9 +16,7 @@ const styles = {
   border: '1px solid #424242',
 }
 
-const getProps = state => state.toObject()
-
-@connect(getProps, { click })
+@connect(s => getGameState(s).toObject(), { click })
 export default class Board extends React.Component {
   static propTypes = {
     selectedGroup: ImmutablePropTypes.setOf(Point.propTypes.isRequired).isRequired,

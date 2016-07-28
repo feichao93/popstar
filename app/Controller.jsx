@@ -2,21 +2,32 @@ import React from 'react'
 import ImmutablePropTypes from 'react-immutable-proptypes'
 import { is } from 'immutable'
 import { connect } from 'react-redux'
-import { getBonus, asSnapshotString, parserJson } from './common'
-import { restart } from './actions'
+import { getBonus, asSnapshotString, parserJson, isGameover } from './common'
+import { restart, undo, redo } from './actions'
 import { GRID_SIZE, SIZE } from './constants'
+import getGameState from './getGameState'
 
 function getProps(state) {
-  return state.toObject()
+  const pointer = state.get('pointer')
+  const history = state.get('history')
+  return {
+    ...getGameState(state).toObject(),
+    pointer,
+    historySize: history.size,
+  }
 }
 
-@connect(getProps, { restart })
+@connect(getProps, { restart, undo, redo })
 export default class Controller extends React.Component {
   static propTypes = {
     score: React.PropTypes.number.isRequired,
     stars: ImmutablePropTypes.mapOf(React.PropTypes.string),
-    gameover: React.PropTypes.bool.isRequired,
+    pointer: React.PropTypes.number.isRequired,
+    historySize: React.PropTypes.number.isRequired,
+    // callbacks
     restart: React.PropTypes.func.isRequired,
+    undo: React.PropTypes.func.isRequired,
+    redo: React.PropTypes.func.isRequired,
   }
 
   state = {
@@ -65,7 +76,8 @@ export default class Controller extends React.Component {
   }
 
   render() {
-    const { score, gameover, stars } = this.props
+    const { score, stars, pointer, historySize } = this.props
+    const gameover = isGameover(stars)
     const { editing, editingValue, errorMessage } = this.state
     const bonus = getBonus(stars.size)
     return (
@@ -76,14 +88,25 @@ export default class Controller extends React.Component {
           top: GRID_SIZE,
         }}
       >
-        <label>当前得分</label>
-        <input type="text" readOnly="readOnly" value={score} />
-        <br />
         {gameover ? (
-          <p style={{ color: 'red' }}>游戏结束 {score - bonus} + {bonus}</p>
-        ) : null}
-        <br />
-        <div>
+          <p style={{ color: 'red' }}>游戏结束
+            <span style={{ fontWeight: 700, fontSize: '150%', margin: 20 }}>
+              {score}
+            </span>
+            = {score - bonus} + {bonus}</p>
+        ) : (
+          <p>当前得分
+            <span style={{ fontWeight: 700, fontSize: '150%', margin: 20 }}>
+            {score}
+            </span>
+          </p>
+        )}
+        <div style={{ marginTop: 20, display: 'flex', justifyContent: 'space-between' }}>
+          <div>
+            <button onClick={this.props.undo} disabled={!(pointer > 0)}>上一步</button>
+            <span style={{ margin: 10 }}>{pointer + 1} / {historySize}</span>
+            <button onClick={this.props.redo} disabled={!(pointer < historySize - 1)}>下一步</button>
+          </div>
           <button onClick={() => this.props.restart()}>重新开始</button>
         </div>
         <textarea
