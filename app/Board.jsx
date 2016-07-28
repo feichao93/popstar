@@ -1,5 +1,5 @@
 import React from 'react'
-import { Range } from 'immutable'
+import { Range, List, Map, is } from 'immutable'
 import ImmutablePropTypes from 'react-immutable-proptypes'
 import { connect } from 'react-redux'
 import { SIZE, GRID_SIZE, COLORS, SELECTED_COLORS } from './constants'
@@ -39,7 +39,7 @@ export default class Board extends React.Component {
       >
         <Grids />
         <Coordinates />
-        <div className="stars">
+        <div>
           {stars.map((color, point) =>
             <Star
               key={point}
@@ -50,9 +50,41 @@ export default class Board extends React.Component {
             />
           ).toArray()}
         </div>
+        <SelectedGroupBorder selectedGroup={selectedGroup} />
       </div>
     )
   }
+}
+
+function getBorder(lines) {
+  const map = Map().withMutations(m => {
+    lines.forEach(line => m.update(line, (old = 0) => old + 1))
+  })
+  return map.filter(count => count === 1).keySeq().toList()
+}
+
+const SelectedGroupBorder = ({ selectedGroup }) => {
+  // console.log(String(selectedGroup))
+  const hls = getBorder(selectedGroup.flatMap(({ x, y }) => List([
+    List([x, x + 1, y]),
+    List([x, x + 1, y + 1]),
+  ])))
+  const vls = getBorder(selectedGroup.flatMap(({ x, y }) => List([
+    List([x, y, y + 1]),
+    List([x + 1, y, y + 1]),
+  ])))
+  // todo 已经完成了线段的计算, 接下来按照
+  return (
+    <div>
+      <div
+        style={{}}
+      />
+    </div>
+  )
+}
+
+SelectedGroupBorder.propTypes = {
+  selectedGroup: ImmutablePropTypes.setOf(Point.propTypes.isRequired).isRequired,
 }
 
 const Coordinates = () => (
@@ -106,11 +138,10 @@ const Coordinates = () => (
 )
 
 const Grids = () => (
-  <div className="grids">
+  <div>
     {Range(0, SIZE * SIZE).map(index =>
       <div
         key={index}
-        className="grid"
         style={{
           transform: `translate(${GRID_SIZE * (index % SIZE)}px,
                   ${GRID_SIZE * (SIZE - 1 - (Math.floor(index / SIZE)))}px)`,
@@ -123,7 +154,6 @@ const Grids = () => (
 
 const Star = ({ point, color, onClick, selected }) => (
   <div
-    className="star"
     onClick={onClick}
     style={{
       transform: `translate(${GRID_SIZE * point.x}px, ${GRID_SIZE * (SIZE - 1 - point.y)}px)`,
