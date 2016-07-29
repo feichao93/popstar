@@ -57,7 +57,6 @@ export default function reducer(state = initialState, action) {
     return state.setIn(['history', pointer + 1], nextGameState)
       .set('pointer', pointer + 1)
       .update('history', h => h.setSize(pointer + 2)) // POP之后需要清空已有的redo记录
-      .setIn(['history', pointer, 'selectedGroup'], Set()) // 取消选中
   }
   if (action.type === RESTART) {
     return state.set('history', List([nextGameState]))

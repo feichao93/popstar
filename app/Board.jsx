@@ -1,5 +1,5 @@
 import React from 'react'
-import { Range, List, Map, is } from 'immutable'
+import { Range, List, Map } from 'immutable'
 import ImmutablePropTypes from 'react-immutable-proptypes'
 import { connect } from 'react-redux'
 import { SIZE, GRID_SIZE, COLORS, SELECTED_COLORS } from './constants'
@@ -58,27 +58,59 @@ export default class Board extends React.Component {
 
 function getBorder(lines) {
   const map = Map().withMutations(m => {
-    lines.forEach(line => m.update(line, (old = 0) => old + 1))
+    lines.forEach(line => m.update(line, old => (old || 0) + 1))
   })
   return map.filter(count => count === 1).keySeq().toList()
 }
 
+const HLine = ({ x, y }) => (
+  <div
+    style={{
+      height: 4,
+      width: GRID_SIZE,
+      position: 'absolute',
+      left: 0,
+      top: 0,
+      background: 'linear-gradient(90deg, #cc7655 22%, #1fc8db 52%, #3a4776 75%)',
+      borderRadius: '2px',
+      transform: `translate(${GRID_SIZE * x}px, ${GRID_SIZE * (SIZE - y) - 1}px)`,
+    }}
+  />
+)
+
+const VLine = ({ x, y }) => (
+  <div
+    style={{
+      height: GRID_SIZE,
+      width: 4,
+      position: 'absolute',
+      left: 0,
+      top: 0,
+      background: 'linear-gradient(0, #cc7655 22%, #1fc8db 52%, #3a4776 75%)',
+      borderRadius: '2px',
+      transform: `translate(${GRID_SIZE * x - 1}px, ${GRID_SIZE * (SIZE - 1 - y)}px)`,
+    }}
+  />
+)
+
+HLine.propTypes = VLine.propTypes = {
+  x: React.PropTypes.number.isRequired,
+  y: React.PropTypes.number.isRequired,
+}
+
 const SelectedGroupBorder = ({ selectedGroup }) => {
-  // console.log(String(selectedGroup))
-  const hls = getBorder(selectedGroup.flatMap(({ x, y }) => List([
-    List([x, x + 1, y]),
-    List([x, x + 1, y + 1]),
+  const hls = getBorder(selectedGroup.toList().flatMap(({ x, y }) => List([
+    List([x, y]),
+    List([x, y + 1]),
   ])))
-  const vls = getBorder(selectedGroup.flatMap(({ x, y }) => List([
-    List([x, y, y + 1]),
-    List([x + 1, y, y + 1]),
+  const vls = getBorder(selectedGroup.toList().flatMap(({ x, y }) => List([
+    List([x, y]),
+    List([x + 1, y]),
   ])))
-  // todo 已经完成了线段的计算, 接下来按照
   return (
     <div>
-      <div
-        style={{}}
-      />
+      {hls.map((hline, index) => <HLine key={index} x={hline.get(0)} y={hline.get(1)} />).toArray()}
+      {vls.map((vline, index) => <VLine key={index} x={vline.get(0)} y={vline.get(1)} />).toArray()}
     </div>
   )
 }
