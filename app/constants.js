@@ -1,6 +1,6 @@
 export const SIZE = 10
 
-export const GRID_SIZE = 50
+export const GRID_SIZE = 60
 
 export const COLORS = {
   R: '#f44336',

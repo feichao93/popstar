@@ -1,7 +1,7 @@
 {
-  "name": "topology-editor",
-  "version": "0.4.3",
-  "description": "Topological editor using React & Redux.",
+  "name": "popstar",
+  "version": "1.0.0",
+  "description": "Popstar game built with React&Redux.",
   "author": "Shi Feichao",
   "scripts": {
     "start": "webpack-dev-server",

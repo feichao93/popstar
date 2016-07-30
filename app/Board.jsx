@@ -73,7 +73,7 @@ const HLine = ({ x, y }) => (
       top: 0,
       background: 'linear-gradient(90deg, #cc7655 22%, #1fc8db 52%, #3a4776 75%)',
       borderRadius: '2px',
-      transform: `translate(${GRID_SIZE * x}px, ${GRID_SIZE * (SIZE - y) - 1}px)`,
+      transform: `translate(${GRID_SIZE * x}px, ${GRID_SIZE * (SIZE - y) - 2}px)`,
     }}
   />
 )
@@ -88,7 +88,7 @@ const VLine = ({ x, y }) => (
       top: 0,
       background: 'linear-gradient(0, #cc7655 22%, #1fc8db 52%, #3a4776 75%)',
       borderRadius: '2px',
-      transform: `translate(${GRID_SIZE * x - 1}px, ${GRID_SIZE * (SIZE - 1 - y)}px)`,
+      transform: `translate(${GRID_SIZE * x - 2}px, ${GRID_SIZE * (SIZE - 1 - y)}px)`,
     }}
   />
 )
