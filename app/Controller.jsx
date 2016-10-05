@@ -1,7 +1,7 @@
 import React from 'react'
 import ImmutablePropTypes from 'react-immutable-proptypes'
 import { is } from 'immutable'
-import { connect } from 'react-redux'
+import { connect } from '../dogfood/react-redux'
 import { getBonus, asSnapshotString, parserJson, isGameover } from './common'
 import { restart, undo, redo } from './actions'
 import { GRID_SIZE, SIZE } from './constants'

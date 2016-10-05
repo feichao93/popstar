@@ -1,8 +1,9 @@
-var webpack = require('webpack')
-var HtmlWebpackPlugin = require('html-webpack-plugin')
+const path = require('path')
+const webpack = require('webpack')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
-  devtool: 'cheap-module-source-map',
+  devtool: 'source-map',
 
   entry: "./app/main.js",
   output: {
@@ -11,10 +12,6 @@ module.exports = {
   },
   module: {
     loaders: [
-      {
-        test: /\.(css|styl)$/,
-        loader: "style!css!stylus"
-      },
       {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
@@ -28,6 +25,12 @@ module.exports = {
         exclude: /node_modules/,
       }
     ]
+  },
+
+  resolve: {
+    root: [
+      path.resolve('.'),
+    ],
   },
 
   plugins: [

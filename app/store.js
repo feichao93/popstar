@@ -1,12 +1,5 @@
-import { createStore, applyMiddleware, compose } from 'redux'
-import thunkMiddleware from 'redux-thunk'
+import { createStore, applyMiddleware } from 'dogfood/redux'
+import thunkMiddleware from 'dogfood/redux-thunk'
 import reducer from './reducer'
 
-let enhancer = compose(
-  applyMiddleware(thunkMiddleware),
-  window.devToolsExtension ? window.devToolsExtension() : f => f)
-if (process.env.NODE_ENV === 'production') {
-  enhancer = applyMiddleware(thunkMiddleware)
-}
-
-export default createStore(reducer, enhancer)
+export default createStore(reducer, applyMiddleware(thunkMiddleware))

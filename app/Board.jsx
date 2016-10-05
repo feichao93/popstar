@@ -1,7 +1,7 @@
 import React from 'react'
 import { Range, List, Map } from 'immutable'
 import ImmutablePropTypes from 'react-immutable-proptypes'
-import { connect } from 'react-redux'
+import { connect } from 'dogfood/react-redux'
 import { SIZE, GRID_SIZE, COLORS, SELECTED_COLORS } from './constants'
 import { Point } from './types'
 import { click } from './actions'
