@@ -41,7 +41,7 @@ export default class MyPromise {
       this[promiseValue] = value
       for (const handler of this.handlers) {
         if (handler.onRejected) {
-          setImmediate(() => handler.onRejected(false, value))
+          setImmediate(() => handler.onRejected(value))
         }
       }
       this.handlers = []
@@ -134,7 +134,7 @@ export default class MyPromise {
 
       this.handlers.push({
         onFulfilled: makeHandler(onFulfilled),
-        onRejectet: makeHandler(onRejected),
+        onRejected: makeHandler(onRejected),
       })
     })
   }
